@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # HomebaseNg Backend
+  homebase-backend:
+    build:
+      context: ./HomebaseNg/backend  # Points to your backend folder
+      dockerfile: Dockerfile
+    volumes:
+      - ./HomebaseNg/backend:/app    # Maps your local backend code to container
+      - /app/node_modules            # Preserves node_modules in container
+    environment:
+      - PORT=1000
+      - NODE_ENV=development
+    ports:
+      - "1000:1000"
+    networks:
+      - homebase-network
+    command: npm run dev
+    restart: unless-stopped
+
+  # HomebaseNg Frontend
+  homebase-frontend:
+    build:
+      context: ./HomebaseNg/frontend  # Points to your frontend folder
+      dockerfile: Dockerfile
+    ports:
+      - "8081:80"
+    volumes:
+      - ./HomebaseNg/frontend:/app    # Maps your local frontend code to container
+      - /app/node_modules             # Preserves node_modules in container
+    environment:
+      - PORT=80
+    depends_on:
+      - homebase-backend
+    networks:
+      - homebase-network
+    restart: unless-stopped
+
+networks:
+  homebase-network:
+    driver: bridge
